@@ -1,0 +1,98 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+html,
+body {
+	height: 100%;
+	font-family: 'Inter', sans-serif;
+	background: #f5f7f8;
+	color: #1f2937;
+}
+.wrapper {
+	max-width: 600px;
+	margin: 2rem auto;
+	padding: 1rem;
+	text-align: center;
+}
+h1 {
+	font-size: 1.75rem;
+	font-weight: 700;
+	margin-bottom: 1rem;
+}
+.result-box {
+	font-size: 1.25rem;
+	font-weight: 600;
+	padding: 0.75rem;
+	border-radius: 6px;
+	margin-bottom: 2rem;
+}
+.result-box.first-win {
+	background: rgba(248, 113, 113, 0.2);
+	color: #b91c1c;
+}
+.result-box.second-win {
+	background: rgba(96, 165, 250, 0.2);
+	color: #1e3a8a;
+}
+.chart-container {
+	position: relative;
+	height: 320px;
+	margin-bottom: 2rem;
+}
+.btn.back {
+	display: inline-block;
+	text-decoration: none;
+	background: #6b7280;
+	color: #fff;
+	padding: 0.5rem 1rem;
+	border-radius: 9999px;
+	font-weight: 600;
+}
+
+/* reset */
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+html,
+body {
+	height: 100%;
+	font-family: 'Inter', sans-serif;
+	background: #fafafa;
+	color: #111;
+}
+
+/* center container */
+.container {
+	max-width: 500px;
+	margin: 4rem auto;
+	padding: 0 1rem;
+	text-align: center;
+}
+
+/* winner banner */
+.winner {
+	font-size: 2rem;
+	font-weight: 700;
+	padding: 1.5rem;
+	border-radius: 8px;
+	margin-bottom: 2rem;
+}
+.winner.first {
+	background: rgba(248, 113, 113, 0.1);
+	color: #b91c1c;
+}
+.winner.second {
+	background: rgba(96, 165, 250, 0.1);
+	color: #1e3a8a;
+}
+
+/* chart container */
+.chart-wrap {
+	position: relative;
+	height: 300px;
+	width: 100%;
+}

@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Pokémon Combat Predictor</title>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="{% static 'css/predictor.css' %}" />
+	</head>
+	<body>
+		<main class="wrapper">
+			<h1>Pokémon Combat Predictor</h1>
+			<p class="subtitle">
+				Select two Pokémon and discover who would win in a battle!
+			</p>
+
+			<div class="card">
+				<form id="predict-form" action="result">
+					{% csrf_token %}
+					<div class="inputs">
+						<div class="input-group first">
+							<label for="pokemon1">First Pokémon</label>
+							<div class="field">
+								<select id="pokemon1" name="first_pokemon">
+									{% for name in pokemon_names %}
+									<option value="{{ name }}">{{ name }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+						<div class="input-group second">
+							<label for="pokemon2">Second Pokémon</label>
+							<div class="field">
+								<select id="pokemon2" name="second_pokemon">
+									{% for name in pokemon_names %}
+									<option value="{{ name }}">{{ name }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<button type="submit" class="btn predict">⚔️ Predict Winner</button>
+				</form>
+			</div>
+
+			<footer>
+				<small
+					>Pokémon Combat Predictor © 2025<br />
+					For entertainment purposes only. Not affiliated with Nintendo or The
+					Pokémon Company.</small
+				>
+			</footer>
+		</main>
+	</body>
+</html>

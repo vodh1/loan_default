@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Battle Result</title>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="{% static 'css/results.css' %}" />
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="winner {% if result == 0 %}first{% else %}second{% endif %}">
+				{% if result == 0 %} 🏆 {{pokemon1.Name}} Wins! {% else %} 🏆
+				{{pokemon2.Name}} Wins! {% endif %}
+			</div>
+			<div class="chart-wrap">
+				<canvas id="statsChart"></canvas>
+			</div>
+		</div>
+
+		<script>
+			// Get the labels and data from the Django context (workaround)
+			const labels = JSON.parse('{{ labels_json|escapejs }}');
+			const data1 = JSON.parse('{{ data1_json |escapejs }}');
+			const data2 = JSON.parse('{{ data2_json |escapejs }}');
+
+			new Chart(document.getElementById('statsChart'), {
+				type: 'bar',
+				data: {
+					labels,
+					datasets: [
+						{
+							label: '{{ pokemon1.Name }}',
+							data: data1,
+							backgroundColor: 'rgba(248,113,113,0.6)',
+							borderColor: 'rgba(248,113,113,1)',
+							borderWidth: 1
+						},
+						{
+							label: '{{ pokemon2.Name }}',
+							data: data2,
+							backgroundColor: 'rgba(96,165,250,0.6)',
+							borderColor: 'rgba(96,165,250,1)',
+							borderWidth: 1
+						}
+					]
+				}
+			});
+		</script>
+	</body>
+</html>

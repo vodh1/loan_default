@@ -1,27 +1,95 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock %}
-{% block content %}
-		<main class="form-wrapper">
-			<div class="form-card">
-				<div class="form-header">
-					<h2>Welcome Back</h2>
-					<p>Log in to access your loan default prediction dashboard</p>
-				</div>
-				<form method="post">
-					<label>Email Address</label>
-					<input type="email" placeholder="your@email.com" required />
+{% block title %}Log in{% endblock %}
+{% block style %}
+<style>
+	#submit-btn {
+		width: 100%;
+		margin-top: 24px;
+	}
 
-					<div class="password-field">
-						<label>Password</label>
-						<a href="#" class="forgot-link">Forgot password?</a>
-					</div>
-					<input type="password" placeholder="••••••••" required />
+	.error-message {
+		color: red;
+		margin-top: 10px;
+		display: none;
+	}
 
-					<button type="submit" class="btn btn-primary">Sign In</button>
-					<p class="form-footer">
-						Don’t have an account? <a href="/signup/">Register now</a>
-					</p>
-				</form>
-			</div>
-		</main>
+</style>
+{% endblock %} {% block content %}
+<main class="form-wrapper">
+	<div class="form-card">
+		<div class="form-header">
+			<h2>Login to Your Account</h2>
+			<p>Access your loan default prediction dashboard</p>
+		</div>
+		<form id="login-form">
+			<label>Username</label>
+			<input type="text" name="username" id="username" placeholder="Username" required />
+
+			<label>Password</label>
+			<input type="password" name="password" id="password" placeholder="Password" required />
+
+			<div class="error-message" id="error-message"></div>
+
+			<button id="submit-btn" type="submit" class="btn btn-primary">
+				Log In
+			</button>
+			<p class="form-footer">
+				Don't have an account? <a href="/signup/">Sign up</a>
+			</p>
+		</form>
+	</div>
+</main>
+{% endblock %} {% block script %}
+<script>
+	$('#login-form').on('submit', function (e) {
+		e.preventDefault();
+
+		// Get form values
+		const username = $('#username').val();
+		const password = $('#password').val();
+		const errorMessage = $('#error-message');
+
+		// Clear previous error
+		errorMessage.hide();
+
+		// Prepare data for API
+		const userData = {
+			username: username,
+			password: password
+		};
+
+		// Make API call
+		$.ajax({
+			type: 'POST',
+			url: '/api/login/',
+			data: JSON.stringify(userData),
+			contentType: 'application/json',
+			dataType: 'json',
+			success: function (response) {
+				if (response.success) {
+					// Redirect to dashboard on success
+					window.location.href = '/dashboard/';
+				} else {
+					// Display error message
+					errorMessage.text(
+						response.error || 'Login failed. Please try again.'
+					);
+					errorMessage.show();
+				}
+			},
+			error: function (xhr) {
+				// Handle errors
+				const response = xhr.responseJSON;
+				if (response && response.error) {
+					errorMessage.text(response.error);
+				} else {
+					errorMessage.text(
+						'Login failed. Please check your credentials and try again.'
+					);
+				}
+				errorMessage.show();
+			}
+		});
+	});
+</script>
 {% endblock %}

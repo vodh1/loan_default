@@ -1,0 +1,574 @@
+{% extends "base.html" %}
+{% block title %}Predict Loan Default{% endblock %}
+
+{% block style %}
+<style>
+  .predict-container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+
+  .page-header {
+    margin: 40px 0;
+  }
+
+  .predict-card {
+    background-color: #1c2539;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 30px;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #f0f0f0;
+    margin-bottom: 8px;
+  }
+
+  .form-control {
+    background-color: #2c3756;
+    border: 1px solid #2c3756;
+    color: #f0f0f0;
+    border-radius: 5px;
+    padding: 10px 15px;
+  }
+
+  .form-control:focus {
+    background-color: #2c3756;
+    border-color: #3b5dd2;
+    color: #f0f0f0;
+    box-shadow: none;
+  }
+
+  .form-text {
+    color: #adb5bd;
+    font-size: 0.85rem;
+  }
+
+  .btn-predict {
+    background-color: #3b5dd2;
+    border: none;
+    padding: 12px 30px;
+    font-weight: 600;
+    margin-top: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-check-input {
+    background-color: #2c3756;
+    border: 1px solid #3b5dd2;
+  }
+
+  .form-check-input:checked {
+    background-color: #3b5dd2;
+    border-color: #3b5dd2;
+  }
+
+  .form-section {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #2c3756;
+    padding-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #f0f0f0;
+  }
+
+  .tooltip-icon {
+    color: #adb5bd;
+    margin-left: 5px;
+    cursor: help;
+    font-size: 14px;
+  }
+
+  .checkbox-container {
+    display: flex;
+    gap: 10px;
+  }
+
+  /* Result cards styling */
+  .result-box,
+  .card {
+    border-width: 2px !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .result-box:hover,
+  .card:hover {
+    transform: translateY(-5px);
+  }
+
+  .card {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  /* Text styles for metrics */
+  .text-danger {
+    color: #f25767 !important;
+  }
+
+  .text-success {
+    color: #42d798 !important;
+  }
+
+  .text-warning {
+    color: #ffc36d !important;
+  }
+
+  .text-primary {
+    color: #5a8dee !important;
+  }
+
+  .border-danger {
+    border-color: #f25767 !important;
+  }
+
+  .border-success {
+    border-color: #42d798 !important;
+  }
+
+  .border-warning {
+    border-color: #ffc36d !important;
+  }
+
+  .border-primary {
+    border-color: #5a8dee !important;
+  }
+
+  .bg-dark {
+    background-color: #1c2539 !important;
+  }
+
+  /* Bootstrap tooltip customization */
+  .tooltip-inner {
+    background-color: #3b5dd2;
+    max-width: 250px;
+    padding: 8px 12px;
+    color: white;
+    text-align: center;
+    font-size: 12px;
+  }
+
+  .tooltip.bs-tooltip-auto[x-placement^=top] .arrow::before,
+  .tooltip.bs-tooltip-top .arrow::before {
+    border-top-color: #3b5dd2;
+  }
+
+  .tooltip.bs-tooltip-auto[x-placement^=right] .arrow::before,
+  .tooltip.bs-tooltip-right .arrow::before {
+    border-right-color: #3b5dd2;
+  }
+
+  .tooltip.bs-tooltip-auto[x-placement^=bottom] .arrow::before,
+  .tooltip.bs-tooltip-bottom .arrow::before {
+    border-bottom-color: #3b5dd2;
+  }
+
+  .tooltip.bs-tooltip-auto[x-placement^=left] .arrow::before,
+  .tooltip.bs-tooltip-left .arrow::before {
+    border-left-color: #3b5dd2;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="predict-container">
+  <div class="page-header">
+    <h1 class="text-primary">Predict Loan Default</h1>
+    <p class="text-muted">Enter loan details to get a default prediction</p>
+  </div>
+
+  <div class="predict-card">
+    <form id="predict-form">
+      <!-- Borrower Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">Borrower Information</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Age
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Age can be a significant factor in loan defaults. Generally, both very young and very old borrowers may have higher default rates."></i>
+              </label>
+              <input type="number" class="form-control" name="age" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Income
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Higher income generally correlates with lower default rates, as borrowers have more financial resources to make payments."></i>
+              </label>
+              <input type="number" class="form-control" name="income" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Education Level
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Higher education levels are often associated with greater job stability and income potential, which can decrease default risk."></i>
+              </label>
+              <select class="form-control" name="education" required>
+                <option value="">Select Education Level</option>
+                <option value="0">High School</option>
+                <option value="1">Bachelor's Degree</option>
+                <option value="2">Master's Degree</option>
+                <option value="3">PhD</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Employment Type
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Employment type affects income stability. Full-time permanent employment generally presents lower default risk than part-time or self-employment."></i>
+              </label>
+              <select class="form-control" name="employment_type" required>
+                <option value="">Select Employment Type</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Self-employed">Self-employed</option>
+                <option value="Unemployed">Unemployed</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Months Employed
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Longer employment duration at the same workplace indicates stability and reduces default risk."></i>
+              </label>
+              <input type="number" class="form-control" name="months_employed" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Marital Status
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Marital status can indicate financial stability. Married borrowers often have dual incomes and may have lower default rates."></i>
+              </label>
+              <select class="form-control" name="marital_status" required>
+                <option value="">Select Marital Status</option>
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+                <option value="divorced">Divorced</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group form-check mt-4 checkbox-container">
+              <input type="checkbox" class="form-check-input" id="has_mortgage" name="has_mortgage">
+              <label class="form-check-label" for="has_mortgage">
+                Has Mortgage
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Having a mortgage can indicate both financial responsibility (successful prior lending) and higher total debt burden."></i>
+              </label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group form-check mt-4 checkbox-container">
+              <input type="checkbox" class="form-check-input" id="has_dependents" name="has_dependents">
+              <label class="form-check-label" for="has_dependents">
+                Has Dependents
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Having dependents increases financial responsibilities and may affect ability to repay loans."></i>
+              </label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group form-check mt-4 checkbox-container">
+              <input type="checkbox" class="form-check-input" id="has_cosigner" name="has_cosigner">
+              <label class="form-check-label" for="has_cosigner">
+                Has Co-Signer
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="A co-signer adds an additional party legally responsible for repaying the loan, which typically reduces default risk."></i>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loan Details Section -->
+      <div class="form-section">
+        <h3 class="section-title">Loan Details</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Loan Amount
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Higher loan amounts generally correlate with higher default risk, as they require larger monthly payments relative to income."></i>
+              </label>
+              <input type="number" class="form-control" name="loan_amount" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Interest Rate
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Higher interest rates increase monthly payments and default risk. Rates are often determined by the borrower's creditworthiness."></i>
+              </label>
+              <input type="number" step="0.01" class="form-control" name="interest_rate" required>
+              <div class="form-text">Annual interest rate (e.g., 5.25 for 5.25%)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Loan Term
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Longer loan terms reduce monthly payments but increase the total interest paid and the time during which default could occur."></i>
+              </label>
+              <select class="form-control" name="loan_term" required>
+                <option value="">Select Loan Term</option>
+                <option value="12">12 months</option>
+                <option value="24">24 months</option>
+                <option value="36">36 months</option>
+                <option value="48">48 months</option>
+                <option value="60">60 months</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Purpose
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="The loan purpose can indicate risk level. For example, debt consolidation loans may have different default patterns than home improvement loans."></i>
+              </label>
+              <select class="form-control" name="purpose" required>
+                <option value="">Select Loan Purpose</option>
+                <option value="Auto">Auto</option>
+                <option value="Business">Business</option>
+                <option value="Home">Home</option>
+                <option value="Education">Education</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Credit Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">Credit Information</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Credit Score
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Credit score is one of the strongest predictors of default risk. Higher scores indicate better credit history and lower default probability."></i>
+              </label>
+              <input type="number" class="form-control" name="credit_score" min="300" max="850" required>
+              <div class="form-text">Credit score (300-850)</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Number of Credit Lines
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="The number of credit accounts can indicate credit experience. Too few may show limited history, while too many may indicate overextension."></i>
+              </label>
+              <input type="number" class="form-control" name="num_credit_lines" required>
+              <div class="form-text">Total number of credit lines in the borrower's credit history</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">
+                Debt-to-Income Ratio
+                <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="The percentage of your monthly gross income that goes toward paying debts. Lower ratios indicate better financial health and lower default risk."></i>
+              </label>
+              <input type="number" step="0.01" class="form-control" min="0" max="1" name="dti_ratio" required>
+              <div class="form-text">Monthly debt payments divided by monthly income (0-1)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-predict">Get Prediction</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Prediction results will show here after submission -->
+  <div id="prediction-results" class="predict-card" style="display: none;">
+    <h3 class="mb-4">Prediction Results</h3>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="result-box bg-dark border-primary p-4 text-center mb-4" id="probability-box">
+          <h4 class="text-light mb-3">Default Probability</h4>
+          <div class="display-4 my-3 fw-bold" id="default-probability">--</div>
+          <p class="text-muted">Likelihood of defaulting on this loan</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="result-box bg-dark border-primary p-4 text-center mb-4">
+          <h4 class="text-light mb-3">Recommendation</h4>
+          <div class="display-6 my-3" id="recommendation">--</div>
+          <p class="text-muted">Based on default probability</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Derived Features Section -->
+    <div class="mt-4">
+      <h4 class="mb-3">Key Metrics</h4>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card bg-dark border-primary p-3 mb-3">
+            <h5 class="text-light mb-2">Loan-to-Income Ratio</h5>
+            <div class="h3 mb-0 text-primary fw-bold" id="loan-to-income">--</div>
+            <p class="text-muted">Loan Amount / Annual Income</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card bg-dark border-primary p-3 mb-3">
+            <h5 class="text-light mb-2">Monthly Payment</h5>
+            <div class="h3 mb-0 text-success fw-bold" id="monthly-payment">$--</div>
+            <p class="text-muted">Based on loan amount and term</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  $(document).ready(function () {
+    // Initialize Bootstrap 5 tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+
+    // Get CSRF token from cookie
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // Form submission handler for predictions
+    $('#predict-form').on('submit', function (e) {
+      e.preventDefault();
+
+      // Show loading state
+      $('#prediction-results').hide();
+      const submitBtn = $(this).find('button[type="submit"]');
+      const originalBtnText = submitBtn.text();
+      submitBtn.prop('disabled', true).text('Processing...');
+
+      // Collect all form data
+      const formData = {};
+      $(this).serializeArray().forEach(function (item) {
+        formData[item.name] = item.value;
+      });
+
+      // Add checkbox values
+      formData.has_mortgage = $('#has_mortgage').is(':checked');
+      formData.has_dependents = $('#has_dependents').is(':checked');
+      formData.has_cosigner = $('#has_cosigner').is(':checked');
+
+      // Send data to prediction API
+      $.ajax({
+        url: '/api/predict/',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(formData),
+        headers: {
+          'X-CSRFToken': csrftoken
+        },
+        success: function (response) {
+          // Display prediction results
+          if (response.success) {
+            $('#default-probability').text((response.probability).toFixed(2) + '%');
+
+            // Set recommendation text and color based on risk level
+            const recommendation = response.risk_level;
+            $('#recommendation').text(recommendation);
+
+            // Apply colors based on risk level
+            if (recommendation === 'Low Risk') {
+              $('#recommendation').removeClass('text-danger text-warning').addClass('text-success');
+              $('#default-probability').removeClass('text-danger text-warning').addClass('text-success');
+              $('#probability-box').removeClass('border-danger border-warning').addClass('border-success');
+            } else if (recommendation === 'Medium Risk') {
+              $('#recommendation').removeClass('text-danger text-success').addClass('text-warning');
+              $('#default-probability').removeClass('text-danger text-success').addClass('text-warning');
+              $('#probability-box').removeClass('border-danger border-success').addClass('border-warning');
+            } else {
+              $('#recommendation').removeClass('text-success text-warning').addClass('text-danger');
+              $('#default-probability').removeClass('text-success text-warning').addClass('text-danger');
+              $('#probability-box').removeClass('border-success border-warning').addClass('border-danger');
+            }
+
+            // Display derived features with formatting
+            $('#loan-to-income').text(response.features.loan_to_income_ratio.toFixed(2));
+            $('#monthly-payment').text('$' + response.features.monthly_payment.toLocaleString('en-US', { minimumFractionDigits: 2 }));
+
+            // Show the results section
+            $('#prediction-results').slideDown();
+
+            // Scroll to results
+            $('html, body').animate({
+              scrollTop: $('#prediction-results').offset().top - 100
+            }, 500);
+          } else {
+            alert('Error: ' + response.error);
+          }
+        },
+        error: function (xhr) {
+          let errorMessage = 'An error occurred during prediction';
+          if (xhr.responseJSON && xhr.responseJSON.error) {
+            errorMessage = xhr.responseJSON.error;
+          } else if (xhr.responseJSON && xhr.responseJSON.detail) {
+            errorMessage = xhr.responseJSON.detail;
+          }
+          alert('Error: ' + errorMessage);
+        },
+        complete: function () {
+          // Restore button state
+          submitBtn.prop('disabled', false).text(originalBtnText);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

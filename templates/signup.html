@@ -1,37 +1,124 @@
 {% extends "base.html" %}
 {% block title %}Sign up{% endblock %}
-{% block content %}
-		<main class="form-wrapper">
-			<div class="form-card">
-				<div class="form-header">
-					<h2>Create Your Account</h2>
-					<p>Join us to access advanced loan default prediction tools</p>
-				</div>
-				<form method="post">
-					<label>Full Name</label>
-					<input type="text" placeholder="John Doe" required />
+{% block style %}
+<style>
+	#submit-btn {
+		width: 100%;
+		margin-top: 24px;
+	}
 
-					<label>Email Address</label>
-					<input type="email" placeholder="your@email.com" required />
+	.error-message {
+		color: red;
+		margin-top: 10px;
+		display: none;
+	}
 
-					<label>Password</label>
-					<input type="password" placeholder="••••••••" required />
-					<small>Must be at least 6 characters long</small>
+</style>
+{% endblock %} {% block content %}
+<main class="form-wrapper">
+	<div class="form-card">
+		<div class="form-header">
+			<h2>Create Your Account</h2>
+			<p>Join us to access advanced loan default prediction tools</p>
+		</div>
+		<form id="signup-form">
+			<label>Username</label>
+			<input type="text" name="username" id="username" placeholder="Username" required />
 
-					<label>Confirm Password</label>
-					<input type="password" placeholder="••••••••" required />
+			<label>Email Address</label>
+			<input type="email" name="email" id="email" placeholder="Email Address" required />
 
-					<label class="checkbox">
-						<input type="checkbox" required />
-						I agree to the <a href="#">Terms of Service</a> and
-						<a href="#">Privacy Policy</a>
-					</label>
+			<label>Password</label>
+			<input type="password" name="password" id="password" placeholder="Password" required />
+			<small>Must be at least 6 characters long</small>
 
-					<button type="submit" class="btn btn-primary">Create Account</button>
-					<p class="form-footer">
-						Already have an account? <a href="/login/">Sign in</a>
-					</p>
-				</form>
-			</div>
-		</main>
+			<label>Confirm Password</label>
+			<input type="password" id="confirm-password" placeholder="Confirm Password" required />
+
+			<div class="error-message" id="error-message"></div>
+
+			<button id="submit-btn" type="submit" class="btn btn-primary">
+				Create Account
+			</button>
+			<p class="form-footer">
+				Already have an account? <a href="/login/">Sign in</a>
+			</p>
+		</form>
+	</div>
+</main>
+{% endblock %} {% block script %}
+<script>
+	$('#signup-form').on('submit', function (e) {
+		e.preventDefault();
+
+		// Get form values
+		const username = $('#username').val();
+		const email = $('#email').val();
+		const password = $('#password').val();
+		const confirmPassword = $('#confirm-password').val();
+		const errorMessage = $('#error-message');
+
+		// Clear previous error
+		errorMessage.hide();
+
+		// Validate passwords match
+		if (password !== confirmPassword) {
+			errorMessage.text('Passwords do not match');
+			errorMessage.show();
+			return;
+		}
+
+		// Check password length
+		if (password.length < 6) {
+			errorMessage.text('Password must be at least 6 characters long');
+			errorMessage.show();
+			return;
+		}
+
+		// Prepare data for API
+		const userData = {
+			username: username,
+			email: email,
+			password: password
+		};
+
+		// Make API call
+		$.ajax({
+			type: 'POST',
+			url: '/api/register/',
+			data: JSON.stringify(userData),
+			contentType: 'application/json',
+			dataType: 'json',
+			success: function (response) {
+				if (response.success) {
+					// Redirect to dashboard on success
+					window.location.href = '/dashboard/';
+				} else {
+					// Should not happen, but handle just in case
+					errorMessage.text('An error occurred. Please try again.');
+					errorMessage.show();
+				}
+			},
+			error: function (xhr) {
+				// Handle errors
+				const response = xhr.responseJSON;
+				if (response && response.errors) {
+					// Handle specific errors
+					if (response.errors.username) {
+						errorMessage.text('Username error: ' + response.errors.username.join(' '));
+					} else if (response.errors.email) {
+						errorMessage.text('Email error: ' + response.errors.email.join(' '));
+					} else if (response.errors.password) {
+						errorMessage.text('Password error: ' + response.errors.password.join(' '));
+					} else {
+						errorMessage.text('Please check your form entries and try again.');
+					}
+				} else {
+					errorMessage.text('An error occurred. Please try again.');
+				}
+				errorMessage.show();
+			}
+		});
+	});
+</script>
 {% endblock %}

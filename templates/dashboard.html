@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+{% block title %}Loan Default Dashboard{% endblock %}
+
+{% block style %}
+<style>
+  body {
+    background-color: #121829;
+    color: #f0f0f0;
+  }
+
+  .dashboard-header {
+    margin-bottom: 30px;
+  }
+
+  .dashboard-container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+
+  .stat-card {
+    background-color: #1c2539;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    color: white;
+  }
+
+  .stat-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .stat-label {
+    font-size: 14px;
+    color: #adb5bd;
+    margin-bottom: 10px;
+  }
+
+  .stat-card small {
+    display: block;
+    margin-top: 5px;
+    margin-bottom: 0;
+  }
+
+  .section-card {
+    background-color: #1c2539;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .section-header {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: white;
+  }
+
+  .feature-bar {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #2c3756;
+    margin-bottom: 15px;
+  }
+
+  .feature-progress {
+    height: 100%;
+    border-radius: 4px;
+  }
+
+  .age-bar .feature-progress {
+    background-color: #3498db;
+  }
+
+  .interest-rate-bar .feature-progress {
+    background-color: #2ecc71;
+  }
+
+  .income-bar .feature-progress {
+    background-color: #f39c12;
+  }
+
+  .months-employed-bar .feature-progress {
+    background-color: #e74c3c;
+  }
+
+  .feature-label {
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .dist-box {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+
+  .non-default-box {
+    background-color: rgba(46, 204, 113, 0.1);
+    border: 1px solid #2ecc71;
+  }
+
+  .default-box {
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 1px solid #e74c3c;
+  }
+
+  .pie-chart-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+  }
+
+  .table-dark {
+    background-color: transparent;
+    color: #f0f0f0;
+  }
+
+  .table>:not(caption)>*>* {
+    background-color: transparent;
+  }
+
+  .table-dark td {
+    border-color: #2c3756;
+  }
+
+  .percentage-text {
+    font-size: 14px;
+    color: #adb5bd;
+    margin-top: 5px;
+    margin-bottom: 0;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container py-4">
+  <!-- Hidden inputs to store Django template values for JavaScript -->
+  <input type="hidden" id="nonDefaultPercentage" value="{{ non_default_percentage|default:'88.39' }}">
+  <input type="hidden" id="defaultPercentage" value="{{ default_percentage|default:'11.61' }}">
+
+  <div class="dashboard-header">
+    <h1 class="text-primary">Loan Default Dashboard</h1>
+    <p class="text-muted">Welcome back, {{ user.username }}! Here's your loan default prediction analytics.</p>
+  </div>
+
+  <!-- Stats cards -->
+  <div class="row">
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon text-primary">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-value">{{ total_records|default:"255,347" }}</div>
+        <div class="stat-label">Total Records</div>
+        <small class="text-muted">Across all loan applications</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon text-danger">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-value">{{ default_rate|default:"11.61" }}%</div>
+        <div class="stat-label">Default Rate</div>
+        <small class="text-muted">{{ defaulted_loans|default:"29,653" }} defaulted loans</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon text-success">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-value">{{ avg_credit_score|default:"574.26" }}</div>
+        <div class="stat-label">Avg. Credit Score</div>
+        <small class="text-muted">Range: 350 - 850</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon text-warning">
+          <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="stat-value">${{ avg_loan_amount|default:"127,578.86" }}</div>
+        <div class="stat-label">Avg. Loan Amount</div>
+        <small class="text-muted">Based on all applications</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dataset Information Section -->
+  <div class="section-card mt-4">
+    <div class="section-header">Dataset Information</div>
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <h5>Dataset Features</h5>
+        <div class="table-responsive">
+          <table class="table table-sm table-dark">
+            <tbody>
+              <tr>
+                <td>Total Features:</td>
+                <td class="text-end">20</td>
+              </tr>
+              <tr>
+                <td>Categorical Features:</td>
+                <td class="text-end">7</td>
+              </tr>
+              <tr>
+                <td>Numerical Features:</td>
+                <td class="text-end">13</td>
+              </tr>
+              <tr>
+                <td>Missing Values:</td>
+                <td class="text-end">0%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5 class="mt-4">Key Features</h5>
+        <div class="feature-label">
+          <span><i class="fas fa-circle text-primary"></i> Age</span>
+          <span>93.50</span>
+        </div>
+        <div class="feature-bar age-bar">
+          <div class="feature-progress" style="width: 100%"></div>
+        </div>
+
+        <div class="feature-label">
+          <span><i class="fas fa-circle text-success"></i> Loan to Income Ratio</span>
+          <span>55.57</span>
+        </div>
+        <div class="feature-bar interest-rate-bar">
+          <div class="feature-progress" style="width: 59.43%"></div>
+        </div>
+
+        <div class="feature-label">
+          <span><i class="fas fa-circle text-warning"></i> Interest Rate</span>
+          <span>50.47</span>
+        </div>
+        <div class="feature-bar income-bar">
+          <div class="feature-progress" style="width: 54%"></div>
+        </div>
+
+        <div class="feature-label">
+          <span><i class="fas fa-circle text-danger"></i> Months Employed</span>
+          <span>33.31</span>
+        </div>
+        <div class="feature-bar months-employed-bar">
+          <div class="feature-progress" style="width: 35.6%"></div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <h5>Target Distribution</h5>
+        <div class="pie-chart-container">
+          <canvas id="targetDistributionChart"></canvas>
+        </div>
+        <div class="row mt-4">
+          <div class="col-md-6">
+            <div class="dist-box non-default-box text-center">
+              <h5>{{ non_defaulted_loans|default:"225,694" }}</h5>
+              <div class="text-success">Non-Default Loans</div>
+              <p class="percentage-text">{{ non_default_percentage|default:"88.39" }}% of total</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="dist-box default-box text-center">
+              <h5>{{ defaulted_loans|default:"29,653" }}</h5>
+              <div class="text-danger">Default Loans</div>
+              <p class="percentage-text">{{ default_percentage|default:"11.61" }}% of total</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Target Distribution Pie Chart
+    const ctx = document.getElementById('targetDistributionChart').getContext('2d');
+
+    // Get values from hidden inputs
+    const nonDefaultPercentage = parseFloat(document.getElementById('nonDefaultPercentage').value);
+    const defaultPercentage = parseFloat(document.getElementById('defaultPercentage').value);
+
+    const targetDistributionChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Non-Default', 'Default'],
+        datasets: [{
+          data: [nonDefaultPercentage, defaultPercentage],
+          backgroundColor: ['#2ecc71', '#e74c3c'],
+          borderColor: '#1c2539',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#f0f0f0'
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Loan Default Predictor</title>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+			integrity="sha512-pEsaX0YIY+U8wQb0bCw+nkZP0+5dn9vT8gP5p4+q+gXrsnj4xg9ta/+4qGqxGPFq2+yTthc7wV3fOqC4c+rcAQ=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		/>
+		<link rel="stylesheet" href="{% static 'css/style.css' %}" />
+	</head>
+	<body>
+		{% include "components/navbar.html" %} {% block content %} {% endblock %}
+	</body>
+</html>
